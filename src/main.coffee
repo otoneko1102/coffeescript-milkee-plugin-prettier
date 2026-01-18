@@ -108,6 +108,11 @@ main = (opts = {}) ->
 
     for file in files
       try
+        # Ensure we only format CoffeeScript files
+        if path.extname(file) isnt '.coffee'
+          c.debug "Skip non-coffee file: #{file}"
+          continue
+
         # Check ignore via patterns or ignore file
         if ig?
           rel = path.relative(projectRoot, file).split(path.sep).join('/')
