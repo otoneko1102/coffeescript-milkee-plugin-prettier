@@ -36,9 +36,8 @@ main = (opts = {}) ->
   (compilationResult) ->
     { config, compiledFiles } = compilationResult
 
-    # Determine output directory
-    output = config?.output or 'dist'
-    outDir = if config?.options?.join then path.dirname(output) else output
+    # Determine entry directory
+    entry = config.entry
 
     projectRoot = process.cwd()
 
@@ -90,16 +89,16 @@ main = (opts = {}) ->
       catch error
         # ignore
 
-    c.info "Searching .coffee files in #{outDir}"
+    c.info "Searching .coffee files in #{entry}"
 
-    unless fs.existsSync(outDir)
-      c.warn "Output directory not found: #{outDir}"
+    unless fs.existsSync(entry)
+      c.warn "Entry directory not found: #{entry}"
       return
 
-    files = collectCoffeeFiles outDir
+    files = collectCoffeeFiles entry
 
     if files.length is 0
-      c.info "No .coffee files found in #{outDir}"
+      c.info "No .coffee files found in #{entry}"
       return
 
     c.info "Found #{files.length} .coffee file(s)"
