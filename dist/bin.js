@@ -3,7 +3,7 @@
 //!/usr/bin/env node
 var args, formatCoffeeFiles, targetDir;
 
-({formatCoffeeFiles} = require('./main.js'));
+({formatCoffeeFiles} = require('./main'));
 
 // Parse CLI arguments
 args = process.argv.slice(2);
