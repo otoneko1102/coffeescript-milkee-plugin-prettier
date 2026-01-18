@@ -1,7 +1,8 @@
 {
   "name": "milkee-plugin-prettier",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Milkee plugin for working with Prettier for CoffeeScript without version conflicts.",
+  "type": "commonjs",
   "main": "dist/main.js",
   "bin": {
     "milkee-plugin-prettier": "dist/bin.js",
