@@ -1,0 +1,40 @@
+{
+  "name": "milkee-plugin-prettier",
+  "version": "0.0.1",
+  "description": "A Milkee plugin for working with Prettier for CoffeeScript without version conflicts.",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "milkee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/otoneko1102/coffeescript-milkee-plugin-prettier.git"
+  },
+  "author": "otoneko.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/otoneko1102/coffeescript-milkee-plugin-prettier/issues"
+  },
+  "homepage": "https://github.com/otoneko1102/coffeescript-milkee-plugin-prettier#readme",
+  "dependencies": {
+    "consola": "^3.4.2",
+    "ignore": "^7.0.5",
+    "prettier": "github:helixbass/prettier#prettier-v2.1.0-dev.100-gitpkg",
+    "prettier-plugin-coffeescript": "^0.1.5"
+  },
+  "devDependencies": {
+    "coffeescript": "^2.7.0",
+    "milkee": "^3.1.2"
+  },
+  "keywords": [
+    "milkee",
+    "coffeescript",
+    "coffee",
+    "prettier",
+    "format",
+    "formatter",
+    "plugin",
+    "milkee-plugin"
+  ]
+}
