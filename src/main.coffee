@@ -31,6 +31,115 @@ collectCoffeeFiles = (dir, list = []) ->
       list.push full
   list
 
+# Core format function that can be used by both plugin and CLI
+formatCoffeeFiles = (targetDir, opts = {}) ->
+  projectRoot = process.cwd()
+
+  # Handle prettierignore: can be a path (string) or an array of patterns
+  ignorePath = null
+  ignorePatterns = null
+  ig = null
+
+  if Array.isArray(opts?.prettierignore)
+    ignorePatterns = opts.prettierignore.filter((p) -> typeof p is 'string')
+    if ignorePatterns.length > 0
+      ig = ignore().add(ignorePatterns)
+  else if typeof opts?.prettierignore is 'string'
+    ignorePath = if path.isAbsolute(opts.prettierignore) then opts.prettierignore else path.join(projectRoot, opts.prettierignore)
+    unless fs.existsSync(ignorePath)
+      c.warn "prettierignore not found at #{ignorePath}"
+      ignorePath = null
+  else
+    defaultIgnore = path.join(projectRoot, '.prettierignore')
+    if fs.existsSync(defaultIgnore)
+      ignorePath = defaultIgnore
+
+  # Load prettierrc: opts.prettierrc can be an object or a path to a file. If not provided, try resolveConfig, then package.json
+  prettierrc = null
+
+  if opts?.prettierrc?
+    if typeof opts.prettierrc is 'object'
+      prettierrc = opts.prettierrc
+    else if typeof opts.prettierrc is 'string'
+      rcPath = if path.isAbsolute(opts.prettierrc) then opts.prettierrc else path.join(projectRoot, opts.prettierrc)
+      try
+        prettierrc = JSON.parse fs.readFileSync(rcPath, 'utf8')
+      catch error
+        c.warn "Failed to read prettierrc at #{rcPath}: #{error.message}"
+
+  unless prettierrc?
+    try
+      prettierrc = await prettier.resolveConfig(projectRoot)
+    catch error
+      prettierrc = null
+
+  unless prettierrc?
+    try
+      pkgPath = path.join(projectRoot, 'package.json')
+      if fs.existsSync(pkgPath)
+        pkgData = JSON.parse fs.readFileSync(pkgPath, 'utf8')
+        if pkgData?.prettier?
+          prettierrc = pkgData.prettier
+    catch error
+      # ignore
+
+  c.info "Searching .coffee files in #{targetDir}"
+
+  unless fs.existsSync(targetDir)
+    c.warn "Target directory not found: #{targetDir}"
+    return
+
+  files = collectCoffeeFiles targetDir
+
+  if files.length is 0
+    c.info "No .coffee files found in #{targetDir}"
+    return
+
+  c.info "Found #{files.length} .coffee file(s)"
+
+  formattedCount = 0
+
+  for file in files
+    try
+      # Ensure we only format CoffeeScript files
+      if path.extname(file) isnt '.coffee'
+        c.debug "Skip non-coffee file: #{file}"
+        continue
+
+      # Check ignore via patterns or ignore file
+      if ig?
+        rel = path.relative(projectRoot, file).split(path.sep).join('/')
+        if ig.ignores(rel)
+          c.info "Ignored by prettierignore patterns: #{file}"
+          continue
+      else if ignorePath?
+        try
+          info = await prettier.getFileInfo(file, { ignorePath })
+          if info?.ignored
+            c.info "Ignored by .prettierignore: #{file}"
+            continue
+        catch err
+          c.debug "Failed to check ignore for #{file}: #{err.message}"
+
+      text = fs.readFileSync(file, 'utf8')
+
+      prettierOptions = Object.assign {}, prettierrc or {},
+        filepath: file,
+        plugins: [ require.resolve('prettier-plugin-coffeescript') ]
+
+      formatted = prettier.format text, prettierOptions
+
+      if formatted isnt text
+        fs.writeFileSync file, formatted, 'utf8'
+        formattedCount += 1
+        c.success "Formatted: #{file}"
+      else
+        c.debug "Already formatted: #{file}"
+    catch error
+      c.error "Failed to format #{file}: #{error.message}"
+
+  c.success "Prettier formatted #{formattedCount} file(s)"
+
 # Export a plugin factory
 main = (opts = {}) ->
   (compilationResult) ->
@@ -39,111 +148,7 @@ main = (opts = {}) ->
     # Determine entry directory
     entry = config.entry
 
-    projectRoot = process.cwd()
-
-    # Handle prettierignore: can be a path (string) or an array of patterns
-    ignorePath = null
-    ignorePatterns = null
-    ig = null
-
-    if Array.isArray(opts?.prettierignore)
-      ignorePatterns = opts.prettierignore.filter((p) -> typeof p is 'string')
-      if ignorePatterns.length > 0
-        ig = ignore().add(ignorePatterns)
-    else if typeof opts?.prettierignore is 'string'
-      ignorePath = if path.isAbsolute(opts.prettierignore) then opts.prettierignore else path.join(projectRoot, opts.prettierignore)
-      unless fs.existsSync(ignorePath)
-        c.warn "prettierignore not found at #{ignorePath}"
-        ignorePath = null
-    else
-      defaultIgnore = path.join(projectRoot, '.prettierignore')
-      if fs.existsSync(defaultIgnore)
-        ignorePath = defaultIgnore
-
-    # Load prettierrc: opts.prettierrc can be an object or a path to a file. If not provided, try resolveConfig, then package.json
-    prettierrc = null
-
-    if opts?.prettierrc?
-      if typeof opts.prettierrc is 'object'
-        prettierrc = opts.prettierrc
-      else if typeof opts.prettierrc is 'string'
-        rcPath = if path.isAbsolute(opts.prettierrc) then opts.prettierrc else path.join(projectRoot, opts.prettierrc)
-        try
-          prettierrc = JSON.parse fs.readFileSync(rcPath, 'utf8')
-        catch error
-          c.warn "Failed to read prettierrc at #{rcPath}: #{error.message}"
-
-    unless prettierrc?
-      try
-        prettierrc = await prettier.resolveConfig(projectRoot)
-      catch error
-        prettierrc = null
-
-    unless prettierrc?
-      try
-        pkgPath = path.join(projectRoot, 'package.json')
-        if fs.existsSync(pkgPath)
-          pkg = JSON.parse fs.readFileSync(pkgPath, 'utf8')
-          if pkg?.prettier?
-            prettierrc = pkg.prettier
-      catch error
-        # ignore
-
-    c.info "Searching .coffee files in #{entry}"
-
-    unless fs.existsSync(entry)
-      c.warn "Entry directory not found: #{entry}"
-      return
-
-    files = collectCoffeeFiles entry
-
-    if files.length is 0
-      c.info "No .coffee files found in #{entry}"
-      return
-
-    c.info "Found #{files.length} .coffee file(s)"
-
-    formattedCount = 0
-
-    for file in files
-      try
-        # Ensure we only format CoffeeScript files
-        if path.extname(file) isnt '.coffee'
-          c.debug "Skip non-coffee file: #{file}"
-          continue
-
-        # Check ignore via patterns or ignore file
-        if ig?
-          rel = path.relative(projectRoot, file).split(path.sep).join('/')
-          if ig.ignores(rel)
-            c.info "Ignored by prettierignore patterns: #{file}"
-            continue
-        else if ignorePath?
-          try
-            info = await prettier.getFileInfo(file, { ignorePath })
-            if info?.ignored
-              c.info "Ignored by .prettierignore: #{file}"
-              continue
-          catch err
-            c.debug "Failed to check ignore for #{file}: #{err.message}"
-
-        text = fs.readFileSync(file, 'utf8')
-
-        prettierOptions = Object.assign {}, prettierrc or {},
-          filepath: file,
-          plugins: [ require.resolve('prettier-plugin-coffeescript') ]
-
-        formatted = prettier.format text, prettierOptions
-
-        if formatted isnt text
-          fs.writeFileSync file, formatted, 'utf8'
-          formattedCount += 1
-          c.success "Formatted: #{file}"
-        else
-          c.debug "Already formatted: #{file}"
-      catch error
-        c.error "Failed to format #{file}: #{error.message}"
-
-    c.success "Prettier formatted #{formattedCount} file(s)"
+    await formatCoffeeFiles(entry, opts)
 
 module.exports = main
+module.exports.formatCoffeeFiles = formatCoffeeFiles

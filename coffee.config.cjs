@@ -1,3 +1,6 @@
+const addShebang = require('milkee-plugin-shebang');
+const replaceExt = require('milkee-plugin-ext');
+
 /** @type {import('@milkee/d').Config} */
 
 module.exports = {
@@ -32,6 +35,9 @@ module.exports = {
       // After compiling, copy non-coffee files from entry to output directory. (Only works when options.join is false)
       // copy: false,
     },
-    plugins: []
+    plugins: [
+      addShebang(),
+      replaceExt(),
+    ]
   },
 };

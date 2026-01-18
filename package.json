@@ -1,8 +1,12 @@
 {
   "name": "milkee-plugin-prettier",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A Milkee plugin for working with Prettier for CoffeeScript without version conflicts.",
   "main": "dist/main.js",
+  "bin": {
+    "milkee-plugin-prettier": "dist/bin.js",
+    "cprettier": "dist/bin.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "build": "milkee"
@@ -25,7 +29,9 @@
   },
   "devDependencies": {
     "coffeescript": "^2.7.0",
-    "milkee": "^3.1.2"
+    "milkee": "^3.1.2",
+    "milkee-plugin-ext": "^1.0.3",
+    "milkee-plugin-shebang": "^1.0.1"
   },
   "keywords": [
     "milkee",

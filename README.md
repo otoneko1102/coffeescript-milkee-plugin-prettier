@@ -13,8 +13,7 @@ A Milkee plugin for working with Prettier for CoffeeScript without version confl
 - Automatically resolves config via `prettier.resolveConfig()` or `package.json#prettier` when `prettierrc` is not provided.
 
 ## Usage
-
-### coffee.config.cjs
+### As a Milkee Plugin (coffee.config.cjs)
 
 ```js
 const prettierPlugin = require('milkee-plugin-prettier');
@@ -33,6 +32,23 @@ module.exports = {
   }
 };
 ```
+
+### As a CLI Tool
+
+You can also use this package as a standalone CLI tool to format CoffeeScript files:
+
+```bash
+# Format files in the current directory
+npx cprettier
+
+# Format files in a specific directory
+npx cprettier src
+```
+
+The CLI will:
+- Recursively find all `.coffee` files in the target directory
+- Respect `.prettierignore` and prettier config files (`.prettierrc`, `prettier.config.js`, or `package.json#prettier`)
+- Format files in place
 
 ### Notes
 
