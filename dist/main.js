@@ -57,11 +57,10 @@ collectCoffeeFiles = function(dir, list = []) {
 // Export a plugin factory
 main = function(opts = {}) {
   return async function(compilationResult) {
-    var compiledFiles, config, defaultIgnore, err, error, file, files, formatted, formattedCount, ig, ignorePath, ignorePatterns, info, j, len1, outDir, output, pkgPath, prettierOptions, prettierrc, projectRoot, rcPath, ref1, rel, text;
+    var compiledFiles, config, defaultIgnore, entry, err, error, file, files, formatted, formattedCount, ig, ignorePath, ignorePatterns, info, j, len1, pkgPath, prettierOptions, prettierrc, projectRoot, rcPath, rel, text;
     ({config, compiledFiles} = compilationResult);
-    // Determine output directory
-    output = (config != null ? config.output : void 0) || 'dist';
-    outDir = (config != null ? (ref1 = config.options) != null ? ref1.join : void 0 : void 0) ? path.dirname(output) : output;
+    // Determine entry directory
+    entry = config.entry;
     projectRoot = process.cwd();
     // Handle prettierignore: can be a path (string) or an array of patterns
     ignorePath = null;
@@ -123,14 +122,14 @@ main = function(opts = {}) {
       }
     }
     // ignore
-    c.info(`Searching .coffee files in ${outDir}`);
-    if (!fs.existsSync(outDir)) {
-      c.warn(`Output directory not found: ${outDir}`);
+    c.info(`Searching .coffee files in ${entry}`);
+    if (!fs.existsSync(entry)) {
+      c.warn(`Entry directory not found: ${entry}`);
       return;
     }
-    files = collectCoffeeFiles(outDir);
+    files = collectCoffeeFiles(entry);
     if (files.length === 0) {
-      c.info(`No .coffee files found in ${outDir}`);
+      c.info(`No .coffee files found in ${entry}`);
       return;
     }
     c.info(`Found ${files.length} .coffee file(s)`);
