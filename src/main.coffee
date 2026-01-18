@@ -110,13 +110,11 @@ formatCoffeeFiles = (targetDir, opts = {}) ->
       if ig?
         rel = path.relative(projectRoot, file).split(path.sep).join('/')
         if ig.ignores(rel)
-          c.info "Ignored by prettierignore patterns: #{file}"
           continue
       else if ignorePath?
         try
           info = await prettier.getFileInfo(file, { ignorePath })
           if info?.ignored
-            c.info "Ignored by .prettierignore: #{file}"
             continue
         catch err
           c.debug "Failed to check ignore for #{file}: #{err.message}"
@@ -134,7 +132,7 @@ formatCoffeeFiles = (targetDir, opts = {}) ->
         formattedCount += 1
         c.success "Formatted: #{file}"
       else
-        c.debug "Already formatted: #{file}"
+        c.info "Unchanged: #{file}"
     catch error
       c.error "Failed to format #{file}: #{error.message}"
 
