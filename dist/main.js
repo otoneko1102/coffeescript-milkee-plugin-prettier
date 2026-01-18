@@ -142,14 +142,12 @@ formatCoffeeFiles = async function(targetDir, opts = {}) {
       if (ig != null) {
         rel = path.relative(projectRoot, file).split(path.sep).join('/');
         if (ig.ignores(rel)) {
-          c.info(`Ignored by prettierignore patterns: ${file}`);
           continue;
         }
       } else if (ignorePath != null) {
         try {
           info = (await prettier.getFileInfo(file, {ignorePath}));
           if (info != null ? info.ignored : void 0) {
-            c.info(`Ignored by .prettierignore: ${file}`);
             continue;
           }
         } catch (error1) {
@@ -168,7 +166,7 @@ formatCoffeeFiles = async function(targetDir, opts = {}) {
         formattedCount += 1;
         c.success(`Formatted: ${file}`);
       } else {
-        c.debug(`Already formatted: ${file}`);
+        c.info(`Unchanged: ${file}`);
       }
     } catch (error1) {
       error = error1;
