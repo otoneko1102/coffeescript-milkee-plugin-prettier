@@ -1,5 +1,4 @@
 const addShebang = require('milkee-plugin-shebang');
-const replaceExt = require('milkee-plugin-ext');
 
 /** @type {import('@milkee/d').Config} */
 
@@ -37,7 +36,6 @@ module.exports = {
     },
     plugins: [
       addShebang(),
-      replaceExt(),
     ]
   },
 };

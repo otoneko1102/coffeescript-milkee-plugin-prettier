@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-{ formatCoffeeFiles } = require './main.coffee'
+{ formatCoffeeFiles } = require './main'
 
 # Parse CLI arguments
 args = process.argv.slice(2)
