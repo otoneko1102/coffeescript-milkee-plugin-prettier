@@ -4,7 +4,8 @@
 
 A Milkee plugin for working with Prettier for CoffeeScript without version conflicts.
 
-- Uses [Optimized-Prettier](https://github.com/helixbass/prettier/releases/tag/prettier-v2.1.0-dev.100-gitpkg) (by [helixbass](https://github.com/helixbass)) and [prettier-plugin-coffeescript](https://www.npmjs.com/package/prettier-plugin-coffeescript) (by [helixbass](https://github.com/helixbass)) to format CoffeeScript files.
+> [!TIP]
+> Uses [Optimized-Prettier](https://github.com/helixbass/prettier/releases/tag/prettier-v2.1.0-dev.100-gitpkg) (by [helixbass](https://github.com/helixbass)) and [prettier-plugin-coffeescript](https://www.npmjs.com/package/prettier-plugin-coffeescript) (by [helixbass](https://github.com/helixbass)) to format CoffeeScript files.
 
 ## Features
 
@@ -13,6 +14,7 @@ A Milkee plugin for working with Prettier for CoffeeScript without version confl
 - Automatically resolves config via `prettier.resolveConfig()` or `package.json#prettier` when `prettierrc` is not provided.
 
 ## Usage
+
 ### As a Milkee Plugin (coffee.config.cjs)
 
 ```js
@@ -54,12 +56,3 @@ The CLI will:
 
 - `.prettierignore` is resolved relative to `process.cwd()` by default. You can pass an absolute or relative path via the `prettierignore` option.
 - When `config.options.join` is used and a single entry file is emitted, the plugin will use the directory of the entry file as the search root for `.coffee` files.
-
-## Development
-
-- Build: `npm run build`
-- Link for local testing: `npm link` → in another project: `npm link milkee-plugin-prettier`
-
-## License
-
-MIT
